@@ -1,26 +1,28 @@
-import checkNumInputs from "./checkNumInputs";
+// import checkNumInputs from "./checkNumInputs";
 
-const forms = (state) => {
+const forms = () => {
     const form = document.querySelectorAll('form'),
         inputs = document.querySelectorAll('input');
 
 
-    checkNumInputs('input[name="user_phone"]');
-
-    // phoneInputs.forEach(item => {
-    //     item.addEventListener('input', () => {
-    //         item.value = item.value.replace(/\D/, '');
-    //     });
-    // });
+    // checkNumInputs('input[name="user_phone"]');
 
     const message = {
         loading: 'Загрузка...',
         success: 'Спасибо! Скоро мы с вами свяжемся',
-        failure: 'Что то пошло не так...'
+        failure: 'Что то пошло не так...',
+        spinner: 'assets/img/spinner.gif',
+        ok: 'assets/img/ok.png',
+        fail: 'assets/img/fail.png'
     };
 
+    const path = {
+        designer: 'assets/server.php',
+        question: 'assets/question.php'
+    }
+
+
     const postData = async (url, data) => {
-        document.querySelector('.status').textContent = message.loading;
         let res = await fetch(url, {
             method: "POST",
             body: data
@@ -41,22 +43,37 @@ const forms = (state) => {
 
             let statusMessage = document.createElement('div');
             statusMessage.classList.add('status');
-            item.appendChild(statusMessage);
+            item.parentNode.appendChild(statusMessage);
+
+            item.classList.add('animated', 'fadeOutUp');
+            setTimeout(() => {
+                item.style.display = 'none';
+            }, 400);
+
+            let statusImg = document.createElement('img');
+            statusImg.setAttribute('scr', message.spinner);
+            statusImg.classList.add('animated', 'fadeInUp');
+            statusMessage.appendChild(statusImg)
+
+            let textMessage = document.createElement('div');
+            textMessage.textContent = message.loading;
+            statusMessage.appendChild(textMessage);
 
             const formData = new FormData(item);
+            let api;
+            item.closest('.popup-design') ? api = path.designer : api = path.question;
+            console.log(api);
 
-            if (item.getAttribute('data-calc') === 'end') {
-                for (let key in state) {
-                    formData.append(key, state[key])
-                }
-            }
-
-            postData('assets/server.php', formData)
+            postData(api, formData)
                 .then(res => {
                     console.log(res);
-                    statusMessage.textContent = message.success;
+                    statusImg.setAttribute('src', message.ok);
+                    textMessage.textContent = message.success;
                 })
-                .catch(() => statusMessage.textContent = message.failure)
+                .catch(() => {
+                    statusImg.setAttribute('src', message.fail);
+                    textMessage.textContent = message.failure
+                })
                 .finally(() => {
                     clearInputs();
                     setTimeout(() => {

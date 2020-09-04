@@ -1,6 +1,6 @@
 const modals = () => {
     let btnPressed = false;
-    function bindModal(triggerSelector, modalSelector, closeSelector, destroy = true) {
+    function bindModal(triggerSelector, modalSelector, closeSelector, destroy = false) {
         const trigger = document.querySelectorAll(triggerSelector),
             modal = document.querySelector(modalSelector),
             close = document.querySelector(closeSelector),
